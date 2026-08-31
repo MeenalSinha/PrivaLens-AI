@@ -2,13 +2,13 @@
 Optional LLM-grounded explanation service.
 
 Only used to phrase already-computed structured findings into readable
-prose. Disabled unless ANTHROPIC_API_KEY is configured. Never sends the
+prose. Disabled unless GEMINI_API_KEY is configured. Never sends the
 raw dataset - only aggregated, non-identifying structured findings, per
 the security requirement in the spec section 26.
 """
 import json
 
-from app.config import LLM_ENABLED, LLM_MODEL, ANTHROPIC_API_KEY
+from app.config import LLM_ENABLED, LLM_MODEL, GEMINI_API_KEY
 
 
 def explain_findings(structured_findings: dict) -> str:
@@ -16,21 +16,19 @@ def explain_findings(structured_findings: dict) -> str:
         return _fallback_explanation(structured_findings)
 
     try:
-        import anthropic
-        client = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
+        from google import genai
+        client = genai.Client(api_key=GEMINI_API_KEY)
         prompt = (
             "You are summarizing a privacy risk assessment for a data analyst. "
             "Use ONLY the structured findings below - do not invent numbers. "
             "Write 3-5 concise sentences, plain language, no exaggeration.\n\n"
             f"Structured findings:\n{json.dumps(structured_findings, indent=2)}"
         )
-        resp = client.messages.create(
+        resp = client.models.generate_content(
             model=LLM_MODEL,
-            max_tokens=400,
-            messages=[{"role": "user", "content": prompt}],
+            contents=prompt,
         )
-        text_blocks = [b.text for b in resp.content if getattr(b, "type", "") == "text"]
-        return "\n".join(text_blocks) if text_blocks else _fallback_explanation(structured_findings)
+        return resp.text if resp.text else _fallback_explanation(structured_findings)
     except Exception:
         return _fallback_explanation(structured_findings)
 

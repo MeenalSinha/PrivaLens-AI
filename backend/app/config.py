@@ -60,10 +60,10 @@ LINKAGE_MATCH_THRESHOLD = 0.55
 # k-anonymity check points used across the UI
 K_VALUES = [2, 3, 5, 10]
 
-# LLM usage is optional; disabled unless ANTHROPIC_API_KEY is present.
-ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY", "")
-LLM_ENABLED = bool(ANTHROPIC_API_KEY)
-LLM_MODEL = os.getenv("LLM_MODEL", "claude-sonnet-4-6")
+# LLM usage is optional; disabled unless GEMINI_API_KEY is present.
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
+LLM_ENABLED = bool(GEMINI_API_KEY)
+LLM_MODEL = os.getenv("LLM_MODEL", "gemini-3.5-pro")
 
 CORS_ORIGINS = os.getenv("CORS_ORIGINS", "http://localhost:5173,http://localhost:3000").split(",")
 
